@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dragon Studio | مدیریت ربات‌های روبیکا</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <!-- Google Font - Vazir -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazir', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b0c10, #1a1e2b);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 48px;
+            padding: 40px 30px;
+            max-width: 1100px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            transition: 0.3s;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+            padding-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: #f5c842;
+            filter: drop-shadow(0 0 12px #f5c84277);
+        }
+
+        .logo h1 {
+            font-weight: 900;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #f5c842, #ffb347);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .admin-badge {
+            background: rgba(245, 200, 66, 0.12);
+            padding: 8px 18px;
+            border-radius: 60px;
+            border: 1px solid #f5c84255;
+            color: #f5c842;
+            font-size: 0.9rem;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .admin-badge:hover {
+            background: #f5c84222;
+            border-color: #f5c842;
+            box-shadow: 0 0 20px #f5c84233;
+        }
+
+        .admin-badge i {
+            font-size: 1rem;
+        }
+
+        /* پنل مدیریت (مخفی) */
+        .admin-panel {
+            display: none;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 32px;
+            padding: 30px 25px;
+            margin-bottom: 40px;
+            border: 1px solid #f5c84233;
+            backdrop-filter: blur(6px);
+        }
+
+        .admin-panel.active {
+            display: block;
+            animation: fadeSlide 0.4s ease;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(-12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-panel h3 {
+            color: #f5c842;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-panel input, .admin-panel textarea {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #3d3f5e;
+            border-radius: 20px;
+            color: #eee;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .admin-panel input:focus, .admin-panel textarea:focus {
+            border-color: #f5c842;
+            box-shadow: 0 0 18px #f5c84222;
+        }
+
+        .admin-panel textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .admin-panel .btn {
+            background: #f5c842;
+            border: none;
+            color: #0b0c10;
+            font-weight: 700;
+            padding: 14px 28px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-panel .btn:hover {
+            background: #ffd966;
+            box-shadow: 0 0 30px #f5c84266;
+            transform: scale(1.02);
+        }
+
+        .admin-panel .btn-danger {
+            background: #b33;
+            color: #fff;
+            margin-right: 12px;
+        }
+        .admin-panel .btn-danger:hover {
+            background: #d44;
+            box-shadow: 0 0 30px #b33b;
+        }
+
+        /* لیست ربات‌ها */
+        .section-title {
+            color: #c8c9d6;
+            font-weight: 300;
+            font-size: 1.4rem;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-right: 4px solid #f5c842;
+            padding-right: 16px;
+        }
+
+        .section-title i {
+            color: #f5c842;
+        }
+
+        .bots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .bot-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(4px);
+            border: 1px solid #2e304a;
+            border-radius: 30px;
+            padding: 24px 20px;
+            transition: 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bot-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #f5c842, #f5a623);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .bot-card:hover {
+            transform: translateY(-6px);
+            border-color: #f5c84288;
+            box-shadow: 0 12px 40px #00000066;
+        }
+
+        .bot-card h4 {
+            color: #f5f5f5;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bot-card h4 i {
+            color: #f5c842;
+            font-size: 1.2rem;
+        }
+
+        .bot-card p {
+            color: #a8aab8;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin: 12px 0 18px;
+        }
+
+        .bot-card .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(245, 200, 66, 0.08);
+            border: 1px solid #f5c84244;
+            padding: 10px 20px;
+            border-radius: 60px;
+            color: #f5c842;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .bot-card .link-btn:hover {
+            background: #f5c842;
+            color: #0b0c10;
+            border-color: #f5c842;
+        }
+
+        .bot-card .delete-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(200, 50, 50, 0.1);
+            border: none;
+            color: #f77;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .bot-card .delete-btn:hover {
+            background: #c44;
+            color: #fff;
+        }
+
+        .empty-state {
+            color: #6a6d85;
+            text-align: center;
+            padding: 50px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* فوتر */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #4e516b;
+            font-size: 0.85rem;
+            border-top: 1px solid #22263b;
+            padding-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .footer a {
+            color: #7d7fa0;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .footer a:hover {
+            color: #f5c842;
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .glass-card {
+                padding: 24px 16px;
+            }
+            .logo h1 {
+                font-size: 1.6rem;
+            }
+            .admin-badge span {
+                display: none;
+            }
+        }
+
+        /* اسکرول */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0c10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f5c84277;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-card" id="app">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-dragon"></i>
+                <h1>Dragon Studio</h1>
+            </div>
+            <div class="admin-badge" id="toggleAdminBtn">
+                <i class="fas fa-user-cog"></i>
+                <span>پنل مدیریت</span>
+                <i class="fas fa-chevron-down" style="font-size:0.7rem; opacity:0.7;"></i>
+            </div>
+        </div>
+
+        <!-- پنل مدیریت -->
+        <div class="admin-panel" id="adminPanel">
+            <h3><i class="fas fa-lock" style="color:#f5c842;"></i>  پنل مدیریت — محرمانه</h3>
+            <input type="password" id="adminPass" placeholder="رمز مخفی را وارد کنید..." />
+            <button class="btn" id="unlockBtn"><i class="fas fa-unlock-alt"></i> ورود به مدیریت</button>
+            <hr style="border-color:#2f3250; margin: 28px 0 20px;" />
+            <div id="adminContent" style="display: none;">
+                <h4 style="color:#ddd; margin-bottom:16px;"><i class="fas fa-robot"></i> افزودن ربات جدید</h4>
+                <input type="text" id="botName" placeholder="نام ربات (مثال: ربات پشتیبان)" />
+                <input type="text" id="botLink" placeholder="لینک ربات در روبیکا (https://...)"/>
+                <textarea id="botDesc" placeholder="توضیحات کوتاه ..."></textarea>
+                <button class="btn" id="addBotBtn"><i class="fas fa-plus-circle"></i> افزودن ربات</button>
+                <button class="btn btn-danger" id="resetBotsBtn"><i class="fas fa-trash-alt"></i> حذف همه</button>
+                <p style="color:#6f7293; margin-top:20px; font-size:0.8rem;"><i class="fas fa-info-circle"></i> داده‌ها در مرورگر شما ذخیره می‌شوند (localStorage).</p>
+            </div>
+        </div>
+
+        <!-- لیست ربات‌ها -->
+        <div class="section-title">
+            <i class="fas fa-robot"></i> ربات‌های روبیکا
+        </div>
+
+        <div class="bots-grid" id="botsContainer">
+            <!-- رندر توسط JS -->
+        </div>
+
+        <!-- فوتر -->
+        <div class="footer">
+            <span><i class="far fa-copyright"></i> 2026 Dragon Studio</span>
+            <a href="#"><i class="fab fa-github"></i> GitHub</a>
+            <a href="#"><i class="fas fa-rocket"></i> روبیکا</a>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---- داده‌های پیش‌فرض ----
+            const DEFAULT_BOTS = [
+                {
+                    id: Date.now() + 1,
+                    name: 'ربات پشتیبان هوشمند',
+                    link: 'https://rubika.ir/robot-support',
+                    description: 'پشتیبانی ۲۴ ساعته با پاسخ‌دهی خودکار به سوالات متداول کاربران.'
+                },
+                {
+                    id: Date.now() + 2,
+                    name: 'ربات خبری Dragon',
+                    link: 'https://rubika.ir/dragon-news',
+                    description: 'جدیدترین اخبار فناوری و گیمینگ را به صورت لحظه‌ای دریافت کن.'
+                },
+                {
+                    id: Date.now() + 3,
+                    name: 'ربات دانلودگر',
+                    link: 'https://rubika.ir/dl-bot',
+                    description: 'دانلود فیلم، موسیقی و فایل از لینک‌های مستقیم با سرعت بالا.'
+                }
+            ];
+
+            // ---- state ----
+            let bots = [];
+            let isAdminUnlocked = false;
+            const ADMIN_PASSWORD = 'Dragon@1404';  // رمز مخفی
+
+            // المان‌ها
+            const container = document.getElementById('botsContainer');
+            const adminPanel = document.getElementById('adminPanel');
+            const toggleBtn = document.getElementById('toggleAdminBtn');
+            const passInput = document.getElementById('adminPass');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const adminContent = document.getElementById('adminContent');
+            const addBtn = document.getElementById('addBotBtn');
+            const resetBtn = document.getElementById('resetBotsBtn');
+            const botName = document.getElementById('botName');
+            const botLink = document.getElementById('botLink');
+            const botDesc = document.getElementById('botDesc');
+
+            // ---- helpers ----
+            function saveBots() {
+                localStorage.setItem('dragonBots', JSON.stringify(bots));
+            }
+
+            function loadBots() {
+                const stored = localStorage.getItem('dragonBots');
+                if (stored) {
+                    try {
+                        bots = JSON.parse(stored);
+                        if (!Array.isArray(bots) || bots.length === 0) {
+                            bots = [...DEFAULT_BOTS];
+                        }
+                    } catch {
+                        bots = [...DEFAULT_BOTS];
+                    }
+                } else {
+                    bots = [...DEFAULT_BOTS];
+                }
+                saveBots();
+            }
+
+            function renderBots() {
+                if (!container) return;
+                if (bots.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p style="color:#8a8daa;">هیچ رباتی ثبت نشده است. از پنل مدیریت اضافه کن.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                bots.forEach((bot, index) => {
+                    const name = bot.name || 'ربات بدون نام';
+                    const link = bot.link || '#';
+                    const desc = bot.description || 'توضیحی وارد نشده است.';
+                    html += `
+                        <div class="bot-card">
+                            <h4><i class="fas fa-robot"></i> ${name}</h4>
+                            <p>${desc}</p>
+                            <a href="${link}" target="_blank" class="link-btn"><i class="fas fa-external-link-alt"></i> بازدید در روبیکا</a>
+                            ${isAdminUnlocked ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-times"></i> حذف</button>` : ''}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+                // event delegation برای دکمه‌های حذف (فقط در حالت مدیریت)
+                if (isAdminUnlocked) {
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const idx = parseInt(this.dataset.index, 10);
+                            if (!isNaN(idx) && idx >= 0 && idx < bots.length) {
+                                if (confirm(`ربات "${bots[idx].name}" حذف شود؟`)) {
+                                    bots.splice(idx, 1);
+                                    saveBots();
+                                    renderBots();
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+
+            // ---- مدیریت پنل ----
+            function toggleAdminPanel(show) {
+                if (show === undefined) {
+                    adminPanel.classList.toggle('active');
+                } else if (show) {
+                    adminPanel.classList.add('active');
+                } else {
+                    adminPanel.classList.remove('active');
+                }
+            }
+
+            function unlockAdmin() {
+                const pass = passInput.value.trim();
+                if (pass === ADMIN_PASSWORD) {
+                    isAdminUnlocked = true;
+                    adminContent.style.display = 'block';
+                    passInput.value = '';
+                    passInput.placeholder = '✓ دسترسی مجاز';
+                    passInput.style.borderColor = '#4caf50';
+                    // غیرفعال کردن دوباره لاگین
+                    unlockBtn.disabled = true;
+                    unlockBtn.innerHTML = '<i class="fas fa-check-circle"></i> ورود موفق';
+                    // نمایش دکمه‌های حذف در کارت‌ها
+                    renderBots();
+                    // ذخیره وضعیت لاگین در جلسه
+                    sessionStorage.setItem('dragonAdminUnlocked', 'true');
+                } else {
+                    passInput.value = '';
+                    passInput.placeholder = 'رمز اشتباه!';
+                    passInput.style.borderColor = '#d44';
+                    setTimeout(() => {
+                        passInput.placeholder = 'رمز مخفی را وارد کنید...';
+                        passInput.style.borderColor = '#3d3f5e';
+                    }, 1500);
+                }
+            }
+
+            function checkAdminSession() {
+                if (sessionStorage.getItem('dragonAdminUnlocked') === 'true') {
+                    isAdminUnlocked = true;
+                    adminContent.style.display = 'block';
+                    unlockBtn.disabled = true;
+                    unlockBtn.innerHTML = '<i class="fas fa-check-circle"></i> ورود موفق';
+                    passInput.placeholder = '✓ دسترسی مجاز';
+                    passInput.style.borderColor = '#4caf50';
+                    renderBots();
+                }
+            }
+
+            // ---- افزودن ربات ----
+            function addBot() {
+                const name = botName.value.trim();
+                const link = botLink.value.trim();
+                const desc = botDesc.value.trim();
+
+                if (!name || !link) {
+                    alert('نام و لینک ربات الزامی است.');
+                    return;
+                }
+
+                // اعتبارسنجی ساده لینک
+                if (!link.startsWith('http://') && !link.startsWith('https://')) {
+                    alert('لینک باید با http:// یا https:// شروع شود.');
+                    return;
+                }
+
+                const newBot = {
+                    id: Date.now(),
+                    name: name,
+                    link: link,
+                    description: desc || 'توضیحی وارد نشده'
+                };
+
+                bots.push(newBot);
+                saveBots();
+                renderBots();
+
+                // پاک کردن فیلدها
+                botName.value = '';
+                botLink.value = '';
+                botDesc.value = '';
+            }
+
+            // ---- ریست ----
+            function resetBots() {
+                if (confirm('همه ربات‌ها حذف می‌شوند. ادامه می‌دهی؟')) {
+                    bots = [];
+                    saveBots();
+                    renderBots();
+                }
+            }
+
+            // ---- مقداردهی اولیه ----
+            function init() {
+                loadBots();
+                renderBots();
+                checkAdminSession();
+
+                // رویدادها
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleAdminPanel();
+                });
+
+                unlockBtn.addEventListener('click', unlockAdmin);
+                passInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') unlockAdmin();
+                });
+
+                addBtn.addEventListener('click', addBot);
+                resetBtn.addEventListener('click', resetBots);
+
+                // همچنین اگر روی دکمه مدیریت کلیک شود و پنل باز باشد، لاگین دوباره کار کنه
+                // (قبلاً لاگین غیرفعال میشه)
+            }
+
+            // اجرا
+            init();
+        })();
+    </script>
+</body>
+</html>
